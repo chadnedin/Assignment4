@@ -16,13 +16,58 @@
 
 package servlet;
 
+import java.io.IOException;
+import java.io.PrintWriter;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import model.Account;
 
 /**
  * Provides an Account Balance and Basic Withdrawal/Deposit Operations
  */
 @WebServlet("/account")
 public class AccountServlet extends HttpServlet {
+    
+    private Account account;
+    
+    public AccountServlet() {
+        this.account = new Account();
+    }
+    
+    
+    @Override 
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        
+           response.setHeader("Cache-Control", "private, no-store, no-cache, must-revalidate");
+        response.setHeader("Pragma", "no-cache");
+        response.setDateHeader("Expires", 0);
+    
+        PrintWriter out = response.getWriter();
+        out.println(account.getBalance());
+        
+    }
+    
+    @Override
+    protected void doPost (HttpServletRequest request, HttpServletResponse response) throws IOException {
+        
+        String withDraw =  request.getParameter("withdraw");
+        String deposit = request.getParameter("deposit");
+        String close = request.getParameter("close");
+        
+        PrintWriter out = response.getWriter();
+        
+        if(withDraw != null) {
+            account.withdraw(Double.parseDouble(withDraw));
+            
+        } else if (deposit != null) {
+            account.deposit(Double.parseDouble(deposit));
+        } else if (close != null && "true".equals(close)) {
+            account.close();
+        } else {
+            out.println("Error proccessing Post request");
+        }
+    }
     
 }
